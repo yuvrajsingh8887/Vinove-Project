@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workstatus.io Agent</title>
+    <style>
+         h1, h2 {
+            text-align: center;
+            color: #600a0a;
+            margin-bottom: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            overflow-x: hidden;
+        }
+        .landing-page {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('background-image.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .landing-page h1 {
+            color: #ffffff;
+            font-size: 56px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            animation: slideIn 1.5s ease-in-out;
+        }
+        .landing-page p {
+            font-size: 24px;
+            margin-bottom: 40px;
+            animation: fadeIn 3s ease-in-out;
+        }
+        .landing-page button {
+            padding: 15px 40px;
+            font-size: 20px;
+            background-color: #e63946;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        .landing-page button:hover {
+            background-color: #d62828;
+            transform: scale(1.05);
+        }
+        .screenshot-page {
+            display: none;
+            padding: 40px 20px;
+            background-color: #f8f9fa;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+        }
+        .screenshot-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            width: 320px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .screenshot-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .screenshot-card img:hover {
+            transform: scale(1.05);
+        }
+        .screenshot-card p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .screenshot-card p:first-of-type {
+            font-weight: bold;
+            color: #222;
+        }
+        .tracking-text {
+            color: #f1faee;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 80%;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .modal-content img {
+            width: 100%;
+            height: auto;
+        }
+        .modal-caption {
+            text-align: center;
+            color: #333;
+            padding: 10px;
+            background: #f8f9fa;
+        }
+        .close, .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            padding: 16px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .close {
+            right: 20px;
+            top: 20px;
+            transform: none;
+        }
+        .prev {
+            left: 20px;
+        }
+        .next {
+            right: 20px;
+        }
+        .close:hover, .prev:hover, .next:hover {
+            color: #bbb;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); }
+            to { transform: translateY(0); }
+        }
+    </style>
+    <meta http-equiv="refresh" content="5"> <!-- Refresh every 5 seconds -->
+</head>
+<body>
+    <div class="landing-page" id="landing-page">
+        <h1>Welcome to Workstatus.io Agent</h1>
+        <p class="tracking-text">Track your work effortlessly</p>
+        <button onclick="showScreenshotPage()">View Screenshots</button>
+    </div>
+
+    <div class="screenshot-page" id="screenshot-page">
+        <h1>Workstatus.io Agent</h1>
+        <h2>Screenshots</h2>
+        <div class="container">
+            {% for screenshot in screenshots %}
+            <div class="screenshot-card">
+                <img src="{{ url_for('get_screenshot', filename=screenshot.filename) }}" alt="{{ screenshot.filename }}" onclick="openModal(this)">
+                <p>Filename: {{ screenshot.filename }}</p>
+                <p>Captured at: {{ screenshot.timestamp }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <span class="prev" onclick="changeSlide(-1)">&#10094;</span>
+        <span class="next" onclick="changeSlide(1)">&#10095;</span>
+        <div class="modal-content">
+            <img id="modal-img" src="" alt="">
+            <div id="caption" class="modal-caption"></div>
+        </div>
+    </div>
+
+    <script>
+        function checkConnection() {
+            if (!navigator.onLine) {
+                alert("No internet connection.");
+            } else {
+                alert("Internet connection restored.");
+            }
+        }
+
+        // Check connection status when the page loads
+        window.onload = function() {
+            checkConnection();
+
+            // Show landing page on page load
+            document.getElementById('landing-page').style.display = 'flex';
+            document.getElementById('screenshot-page').style.display = 'none';
+            slides = document.querySelectorAll('.screenshot-card img');
+        }
+
+        // Listen for online and offline events
+        window.addEventListener('offline', function() {
+            alert("No internet connection.");
+        });
+
+        window.addEventListener('online', function() {
+            alert("Internet connection restored.");
+        });
+        var currentSlideIndex;
+        var slides;
+
+        function showScreenshotPage() {
+            history.pushState(null, null, ''); // Push new state to allow back navigation
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('screenshot-page').style.display = 'block';
+        }
+
+        window.addEventListener('popstate', function(event) {
+            document.getElementById('screenshot-page').style.display = 'none';
+            document.getElementById('landing-page').style.display = 'flex';
+        });
+
+        window.onload = function() {
+            // Show landing page on page load
+            document.getElementById('landing-page').style.display = 'flex';
+            document.getElementById('screenshot-page').style.display = 'none';
+            slides = document.querySelectorAll('.screenshot-card img');
+        }
+
+        // Open the Modal
+        function openModal(element) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("modal-img");
+            var captionText = document.getElementById("caption");
+
+            modal.style.display = "flex";
+            modalImg.src = element.src;
+            captionText.innerHTML = element.alt;
+
+            // Set the current slide index based on the clicked image
+            currentSlideIndex = Array.from(slides).indexOf(element);
+        }
+
+        // Close the Modal
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+
+        // Change Slide
+        function changeSlide(direction) {
+            currentSlideIndex += direction;
+
+            if (currentSlideIndex >= slides.length) {
+                currentSlideIndex = 0;
+            } else if (currentSlideIndex < 0) {
+                currentSlideIndex = slides.length - 1;
+            }
+
+            var newSlide = slides[currentSlideIndex];
+            var modalImg = document.getElementById("modal-img");
+            var captionText = document.getElementById("caption");
+
+            modalImg.src = newSlide.src;
+            captionText.innerHTML = newSlide.alt;
+        }
+
+        
+    </script>
+</body>
+</html>
